@@ -1,0 +1,11 @@
+import { ArrowUpRight, Check, Clock3 } from "lucide-react";
+import type { OptimizationOpportunity, OptimizationTask, PlatformMetric } from "@/lib/domain/types";
+export function PlatformBreakdown({ platforms }: { platforms: PlatformMetric[] }) {
+ return <section className="panel"><div className="panel-heading"><div><h2>平台表现</h2><p>按 AI 平台对比品牌被提及情况</p></div><span className="demo-tag">演示数据</span></div>{platforms.length===0?<p className="inline-empty">暂无平台数据</p>:<div className="platform-list">{platforms.map((p)=><div className="platform-row-dashboard" key={p.id}><span className="platform-dot" style={{background:p.color}}/><b>{p.name}</b><div className="platform-meter"><i style={{width:`${p.visibility}%`,background:p.color}}/></div><span>{p.visibility}%</span><small>{p.mentions.toLocaleString()} 次提及</small></div>)}</div>}</section>
+}
+export function TaskSummary({ tasks }: { tasks: OptimizationTask[] }) {
+ return <section className="panel"><div className="panel-heading"><div><h2>优化任务</h2><p>近期内容与资料优化进度</p></div><span className="demo-tag">演示数据</span></div><div className="task-list">{tasks.length===0?<p className="inline-empty">还没有优化任务</p>:tasks.map((task)=><div className="task-row" key={task.id}><span className={`task-state ${task.status}`}>{task.status==="done"?<Check size={14}/>:<Clock3 size={14}/>}</span><span className="task-title">{task.title}</span><span className="task-status">{task.status==="done"?"已完成":task.status==="in_progress"?"进行中":"待处理"}</span></div>)}</div></section>
+}
+export function OpportunityPreview({ items, onSelect }: { items: OptimizationOpportunity[]; onSelect: (id:string)=>void }) {
+ return <section className="panel opportunity-panel"><div className="panel-heading"><div><h2>今日增长机会</h2><p>根据演示样本中的公开回答和引用整理</p></div><span className="demo-tag">模拟分析</span></div>{items.length===0?<p className="inline-empty">当前范围暂未发现增长机会</p>:<div className="opportunity-preview-list">{items.map(item=><article key={item.id}><div className="opp-priority">{item.priority==="high"?"高优先级":"建议关注"}</div><h3>{item.title}</h3><p>{item.observableEvidence}</p><button className="text-action" onClick={()=>onSelect(item.id)}>查看证据与建议 <ArrowUpRight size={14}/></button></article>)}</div>}</section>
+}
