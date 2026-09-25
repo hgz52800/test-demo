@@ -166,7 +166,7 @@ expect(screen.getByRole("dialog", { name: "主导航" })).toBeVisible();
   - `WorkspaceService.list(): Promise<WorkspaceOption[]>`
   - `OptimizationService.createPlan(opportunityId: string): Promise<OptimizationPlan>`
   - `OptimizationService.createTask(input: CreateTaskInput): Promise<OptimizationTask>`
-- Error union: `ServiceError` with `kind: "unavailable" | "invalid-input" | "not-found"`, safe user message, and optional retryable flag.
+- Error union: `ServiceError` with `kind: "unavailable" | "invalid-input" | "not-found"`, safe user message, and optional retryable flag.\n- `DashboardData = { metrics: DashboardMetric[]; series: MetricSeriesPoint[]; platformBreakdown: PlatformMetric[]; recentTasks: OptimizationTask[] }`.\n- `WorkspaceOption = { id: string; organizationName: string; brandProjectId: string; brandName: string }`.\n- `OptimizationPlan = { opportunityId: string; summary: string; actions: string[]; isDemo: true }`.\n- `CreateTaskInput = { opportunityId: string; title: string; priority: OpportunityPriority }`.
 
 - [ ] **Step 1: 写服务 contracts 的失败测试**
   覆盖 fixtures 含品牌、至少 4 个 AI 平台、问题、竞品、引用摘要、机会和任务；并测试时间范围过滤、缺失机会 ID 返回 null、创建演示任务返回待处理状态、空 fixtures 可用。
