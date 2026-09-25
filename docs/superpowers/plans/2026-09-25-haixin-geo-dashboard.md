@@ -60,7 +60,7 @@
 
 **Files:**
 - Create/modify: `package.json`、锁文件、`tsconfig.json`、Next 配置、ESLint 配置、Vitest 配置、`.gitignore`
-- Create: `src/app/layout.tsx`、`src/app/page.tsx`、`src/test/setup.ts`
+- Create: `src/app/layout.tsx`、`src/app/(marketing)/page.tsx`、`src/app/(marketing)/page.test.tsx`、`src/test/setup.ts`
 - Create: `.env.example`
 - Modify: `README.md`
 - Preserve: `hello.py` 和现有 docs
@@ -70,21 +70,21 @@
 - Produces: 基础 Next.js layout 和全局样式入口，供后续页面使用。
 
 - [ ] **Step 1: 写启动入口和基础页面的失败测试**
-  在 `src/app/page.test.tsx` 测试首页渲染“海心 AI”名称和进入工作台链接；初始仓库未配置测试框架时，先添加 Vitest/RTL 配置和测试脚本，但不要写生产页面实现。
+  在 `src/app/(marketing)/page.test.tsx` 测试首页渲染“海心 AI”名称和进入演示入口链接；初始仓库未配置测试框架时，先添加 Vitest/RTL 配置和测试脚本，但不要写生产页面实现。
 
 - [ ] **Step 2: 运行测试确认失败**
-  Run: `npm run test -- src/app/page.test.tsx`
+  Run: `npm run test -- 'src/app/(marketing)/page.test.tsx'`
   Expected: FAIL，测试因首页模块或其可见内容不存在而失败。
 
 - [ ] **Step 3: 建立 Next.js 基础结构**
-  创建适配当前 Node.js LTS 的 Next.js、React、TypeScript 项目配置；添加 App Router 根 layout 与仅包含产品名称、进入链接的最小首页。安装 Vitest、jsdom、React Testing Library 作为轻量验证工具，安装 Recharts 和 Lucide icons 供后续组件使用；具体兼容版本先查官方文档。
+  创建适配当前 Node.js LTS 的 Next.js、React、TypeScript 项目配置；添加 App Router 根 layout 与仅包含产品名称、演示入口链接的最小首页。安装 Vitest、jsdom、React Testing Library 作为轻量验证工具，安装 Recharts 和 Lucide icons 供后续组件使用；具体兼容版本先查官方文档。
 
 - [ ] **Step 4: 添加环境模板、忽略文件与运行说明**
   `.env.example` 只列未来变量名和用途注释；`.gitignore` 排除 `.env*`（保留 `.env.example`）、`node_modules`、`.next`、构建和测试缓存。README 说明 Node 版本、安装/启动/检查命令和当前 Mock 演示范围。
 
 - [ ] **Step 5: 运行启动测试**
-  Run: `npm run test -- src/app/page.test.tsx`
-  Expected: PASS，首页标题和工作台链接出现。
+  Run: `npm run test -- 'src/app/(marketing)/page.test.tsx'`
+  Expected: PASS，首页标题和演示入口链接出现。
   Run: `npm run typecheck`
   Expected: PASS，无 TypeScript 错误。
   Run: `npm run build`
@@ -185,7 +185,7 @@
 - Produces: `DateRange = { preset: "7d" | "30d" | "90d" | "custom"; from: string; to: string }`；范围验证由 `validateDateRange(range): { ok: true } | { ok: false; message: string }` 返回。
 
 - [ ] **Step 1: 写时间范围与驾驶舱加载状态测试**
-  验证 7/30/90 天范围边界、合法自定义范围和反向范围错误；页面显示 8 个核心指标、趋势图标签、平台名称、Loading、Error、Empty 状态。
+  验证 7/30/90 天范围边界、合法自定义范围和反向范围错误；页面显示 9 个核心指标、趋势图标签、平台名称、Loading、Error、Empty 状态。
 
 - [ ] **Step 2: 运行测试确认失败**
   Run: `npm run test -- src/lib/date/range.test.ts src/app/app/overview/page.test.tsx`
@@ -246,10 +246,10 @@
 ### Task 6: 公共介绍、演示入口与预览模块路由
 
 **Files:**
-- Create: `src/app/(marketing)/page.tsx)、`src/app/(marketing)/page.test.tsx`
-- Create: `src/app/login/page.tsx)、`src/app/login/page.test.tsx`
-- Create: `src/app/app/[module]/page.tsx)、`src/app/app/[module]/page.test.tsx`
-- Create: `src/components/marketing/hero.tsx)、`src/components/preview/module-preview.tsx`
+- Modify: `src/app/(marketing)/page.tsx`，并保留 Task 1 的首页测试
+- Create: `src/app/login/page.tsx`、`src/app/login/page.test.tsx`
+- Create: `src/app/app/[module]/page.tsx`、`src/app/app/[module]/page.test.tsx`
+- Create: `src/components/marketing/hero.tsx`、`src/components/preview/module-preview.tsx`
 
 **Interfaces:**
 - Consumes: Task 2 shell/navigation and Task 3 workspace option types.
