@@ -166,7 +166,11 @@ expect(screen.getByRole("dialog", { name: "主导航" })).toBeVisible();
   - `WorkspaceService.list(): Promise<WorkspaceOption[]>`
   - `OptimizationService.createPlan(opportunityId: string): Promise<OptimizationPlan>`
   - `OptimizationService.createTask(input: CreateTaskInput): Promise<OptimizationTask>`
-- Error union: `ServiceError` with `kind: "unavailable" | "invalid-input" | "not-found"`, safe user message, and optional retryable flag.\n- `DashboardData = { metrics: DashboardMetric[]; series: MetricSeriesPoint[]; platformBreakdown: PlatformMetric[]; recentTasks: OptimizationTask[] }`.\n- `WorkspaceOption = { id: string; organizationName: string; brandProjectId: string; brandName: string }`.\n- `OptimizationPlan = { opportunityId: string; summary: string; actions: string[]; isDemo: true }`.\n- `CreateTaskInput = { opportunityId: string; title: string; priority: OpportunityPriority }`.
+- Error union: `ServiceError` with `kind: "unavailable" | "invalid-input" | "not-found"`, safe user message, and optional retryable flag.
+- `DashboardData = { metrics: DashboardMetric[]; series: MetricSeriesPoint[]; platformBreakdown: PlatformMetric[]; recentTasks: OptimizationTask[] }`.
+- `WorkspaceOption = { id: string; organizationName: string; brandProjectId: string; brandName: string }`.
+- `OptimizationPlan = { opportunityId: string; summary: string; actions: string[]; isDemo: true }`.
+- `CreateTaskInput = { opportunityId: string; title: string; priority: OpportunityPriority }`.
 
 - [ ] **Step 1: 写服务 contracts 的失败测试**
   覆盖 fixtures 含品牌、6 个可配置 AI 平台、问题、竞品、引用摘要、机会和任务；并测试时间范围过滤、缺失机会 ID 返回 null、创建演示任务返回待处理状态、空 fixtures 可用。
@@ -207,7 +211,8 @@ expect(await service.getById("missing")).toBeNull();
 
 **Interfaces:**
 - Consumes: Task 2 shell and Task 3 `DashboardService`.
-- Consumes: Task 3 `DateRange` type.\n- Produces: `validateDateRange(range): { ok: true } | { ok: false; message: string }`.
+- Consumes: Task 3 `DateRange` type.
+- Produces: `validateDateRange(range): { ok: true } | { ok: false; message: string }`.
 
 - [ ] **Step 1: 写时间范围与驾驶舱加载状态测试**
   验证 7/30/90 天范围边界、合法自定义范围和反向范围错误；页面显示 9 个核心指标、趋势图标签、平台名称、Loading、Error、Empty 状态。
