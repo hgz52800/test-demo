@@ -8,6 +8,8 @@
 
 **Tech Stack:** Next.js、React、TypeScript、CSS variables/CSS Modules、Recharts、Lucide icons、Vitest、React Testing Library。
 
+执行前须查看 Next.js、React、Recharts 和 Vitest 官方文档，锁定 Node/框架兼容版本及 App Router 与测试配置；不依赖当前未确认的版本号。
+
 **Spec:** `docs/superpowers/specs/2026-09-25-haixin-geo-dashboard-design.md`
 
 ## Global Constraints
@@ -72,6 +74,17 @@
 - [ ] **Step 1: 写启动入口和基础页面的失败测试**
   在 `src/app/(marketing)/page.test.tsx` 测试首页渲染“海心 AI”名称和进入演示入口链接；初始仓库未配置测试框架时，先添加 Vitest/RTL 配置和测试脚本，但不要写生产页面实现。
 
+```tsx
+import { render, screen } from "@testing-library/react";
+import Home from "./page";
+
+it("shows the product and demo entry", () => {
+  render(<Home />);
+  expect(screen.getByRole("heading", { name: /海心 AI/ })).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: /进入演示/ })).toHaveAttribute("href", "/login");
+});
+```
+
 - [ ] **Step 2: 运行测试确认失败**
   Run: `npm run test -- 'src/app/(marketing)/page.test.tsx'`
   Expected: FAIL，测试因首页模块或其可见内容不存在而失败。
@@ -110,6 +123,12 @@
 - [ ] **Step 1: 写侧栏导航和断点的失败测试**
   在 `layout.test.tsx` 验证 13 个导航标签可见、当前路由有可访问的选中状态、移动端菜单按钮有名称且能打开/关闭导航抽屉。
 
+```tsx
+expect(screen.getByRole("link", { name: "GEO 总驾驶舱" })).toHaveAttribute("aria-current", "page");
+await user.click(screen.getByRole("button", { name: "打开导航" }));
+expect(screen.getByRole("dialog", { name: "主导航" })).toBeVisible();
+```
+
 - [ ] **Step 2: 运行测试确认失败**
   Run: `npm run test -- src/app/app/layout.test.tsx`
   Expected: FAIL，工作台布局和导航不存在。
@@ -134,7 +153,7 @@
 ### Task 3: 定义领域类型、Mock adapter 和服务状态
 
 **Files:**
-- Create: `src/lib/domain/organization.ts`、`brand-project.ts`、`platform.ts`、`dashboard.ts`、`opportunity.ts`、`task.ts`
+- Create: `src/lib/domain/organization.ts`、`brand-project.ts`、`platform.ts`、`dashboard.ts`、`opportunity.ts`、`task.ts`、`date-range.ts`
 - Create: `src/lib/services/errors.ts`、`dashboard-service.ts`、`opportunity-service.ts`、`workspace-service.ts`、`optimization-service.ts`
 - Create: `src/lib/mock/fixtures.ts`、`mock-services.ts`
 - Create: `src/lib/services/mock-services.test.ts`
@@ -151,6 +170,12 @@
 
 - [ ] **Step 1: 写服务 contracts 的失败测试**
   覆盖 fixtures 含品牌、至少 4 个 AI 平台、问题、竞品、引用摘要、机会和任务；并测试时间范围过滤、缺失机会 ID 返回 null、创建演示任务返回待处理状态、空 fixtures 可用。
+
+```ts
+const rows = await service.list({ brandProjectId: "brand-demo", range: dateRange });
+expect(rows.every((row) => row.createdAt >= dateRange.from && row.createdAt <= dateRange.to)).toBe(true);
+expect(await service.getById("missing")).toBeNull();
+```
 
 - [ ] **Step 2: 运行测试确认失败**
   Run: `npm run test -- src/lib/services/mock-services.test.ts`
@@ -182,7 +207,7 @@
 
 **Interfaces:**
 - Consumes: Task 2 shell and Task 3 `DashboardService`.
-- Produces: `DateRange = { preset: "7d" | "30d" | "90d" | "custom"; from: string; to: string }`；范围验证由 `validateDateRange(range): { ok: true } | { ok: false; message: string }` 返回。
+- Consumes: Task 3 `DateRange` type.\n- Produces: `validateDateRange(range): { ok: true } | { ok: false; message: string }`.
 
 - [ ] **Step 1: 写时间范围与驾驶舱加载状态测试**
   验证 7/30/90 天范围边界、合法自定义范围和反向范围错误；页面显示 9 个核心指标、趋势图标签、平台名称、Loading、Error、Empty 状态。
@@ -193,6 +218,13 @@
 
 - [ ] **Step 3: 实现时间范围校验**
   通过固定时钟注入测试时间，避免跨日测试抖动；当开始时间晚于结束时间时返回明确错误，不调用 DashboardService。
+
+```ts
+export function validateDateRange(range: DateRange) {
+  if (range.from > range.to) return { ok: false as const, message: "开始日期不能晚于结束日期" };
+  return { ok: true as const };
+}
+```
 
 - [ ] **Step 4: 实现指标、趋势和平台模块**
   页面用客户端的最小状态管理时间范围，并从 DashboardService 拉取数据。趋势图用 Recharts 呈现时间序列，图例、轴标签、数值摘要和空数据状态都可读；避免用户只凭颜色比较。指标覆盖综合指数、曝光、提及、推荐、引用、覆盖问题、监测问题、平台数和任务完成率。
@@ -221,6 +253,13 @@
 
 - [ ] **Step 1: 写机会查看和创建演示任务的失败测试**
   测试用户能打开机会详情、看到平台/问题/当前表现/竞品/可观测证据/建议；点击“生成优化方案”后出现含“模拟生成”标识的预览；创建后出现成功反馈，任务状态为待处理。
+
+```tsx
+await user.click(screen.getByRole("button", { name: "生成优化方案" }));
+expect(await screen.findByText("模拟生成" )).toBeVisible();
+await user.click(screen.getByRole("button", { name: "创建演示任务" }));
+expect(await screen.findByText(/待处理/)).toBeVisible();
+```
 
 - [ ] **Step 2: 运行测试确认失败**
   Run: `npm run test -- src/features/opportunities/opportunities.test.tsx`
@@ -268,6 +307,15 @@
 - [ ] **Step 4: 实现模块预览页**
   使用明确允许的 slug → 标题/描述静态映射，不把未经验证的 URL 直接用作内容。每个未交付导航提供价值说明、阶段标记和返回驾驶舱按钮。
 
+```ts
+const previewModules = {
+  diagnostics: { title: "品牌 AI 体检", phase: "后续阶段" },
+  monitoring: { title: "AI 曝光监测", phase: "后续阶段" },
+} as const;
+const moduleInfo = previewModules[params.module as keyof typeof previewModules];
+if (!moduleInfo) notFound();
+```
+
 - [ ] **Step 5: 运行路由测试**
   Run: `npm run test -- 'src/app/(marketing)/page.test.tsx' src/app/login/page.test.tsx 'src/app/app/[module]/page.test.tsx'`
   Expected: PASS；未知 slug 显示 not-found，登录入口没有密码字段。
@@ -301,7 +349,15 @@
   Expected: PASS，生产构建完成。
 
 - [ ] **Step 2: 手动验证桌面和移动视口**
-  启动 `npm run dev`，在 1440px、1024px、390px 检查介绍页、登录入口、工作台、驾驶舱和机会流程。确认窄屏没有布局溢出，移动抽屉可以用按钮打开/关闭，桌面侧栏正常，主要点击均有反馈。
+  启动 `npm run dev`，在 1440px、1024px、390px 检查介绍页、登录入口、工作台、驾驶舱和机会流程。
+
+```sh
+npm run test
+npm run lint
+npm run typecheck
+npm run build
+npm run dev
+```确认窄屏没有布局溢出，移动抽屉可以用按钮打开/关闭，桌面侧栏正常，主要点击均有反馈。
 
 - [ ] **Step 3: 手动检查错误和无障碍**
   模拟服务空数组和失败，确认分别显示空状态和可重试错误；用键盘 Tab/Enter/Escape 操作导航和 Drawer/Dialog；检查浏览器控制台无阻断使用的异常。
